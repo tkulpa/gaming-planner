@@ -24,6 +24,7 @@ export default function handler(
     .then((data) => {
       if(data?.access_token) {
         setCookie('twitchAccessToken', data?.access_token, { req, res, maxAge: data?.expires_in });
+        console.log('twitchAccessToken set successfully!')
         res.status(200).end()
       } else {
         console.error("Invalid token returned from twitch");
@@ -31,7 +32,7 @@ export default function handler(
       }
     })
     .catch((error) => {
-      console.error("Error:", error);
+      console.error("Error while Authenticating Twitch:", error);
       res.status(500).end()
     });
 }
