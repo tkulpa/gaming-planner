@@ -23,7 +23,7 @@ export default NextAuth({
   callbacks: {
     async signIn({ user }) {
       console.log(`User ${user?.name} (id: ${user?.id}) logged in`)
-      return fetch('/authenticate-twitch', {
+      return fetch(`${domain}/api/authenticate-twitch`, {
         method: "GET"
       })
         .then((response) => {
