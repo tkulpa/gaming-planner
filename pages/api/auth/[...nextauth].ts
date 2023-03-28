@@ -7,7 +7,7 @@ const providers = []
 
 if (!!process?.env?.DISCORD_CLIENT_ID && !!process?.env?.DISCORD_CLIENT_SECRET) {
   const redirectUriPostfix = '/api/auth/callback/discord'
-  const redirectUri = process?.env?.VERCEL_URL ? `https://${process?.env?.VERCEL_URL}` : 'http://localhost:3000'
+  const redirectUri = process?.env?.VERCEL ? `https://gaming-planner.vercel.app` : 'http://localhost:3000'
   providers.push(DiscordProvider({
     clientId: process?.env?.DISCORD_CLIENT_ID,
     clientSecret: process?.env?.DISCORD_CLIENT_SECRET,
