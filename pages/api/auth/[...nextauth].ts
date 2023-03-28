@@ -23,14 +23,12 @@ export default NextAuth({
   callbacks: {
     async signIn({ user }) {
       console.log(`User ${user?.name} (id: ${user?.id}) logged in`)
-      return fetch(`${domain}/authenticate-twitch`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
+      return fetch('/authenticate-twitch', {
+        method: "GET"
       })
         .then((response) => {
-          console.log(`User ${user?.name} (id: ${user?.id}) logged in and has TWITCH SESSION KEY`)
+          console.log('response', response)
+          console.log(`User ${user?.name} (id: ${user?.id}) has TWITCH SESSION KEY`)
           return true
         })
         .catch((error) => {
