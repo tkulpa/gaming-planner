@@ -11,6 +11,7 @@ export default function handler(
   const twitchAccessToken = getCookie('twitchAccessToken', { req, res });
   if (!process.env.TWITCH_CLIENT_ID || !twitchAccessToken) {
     res.status(500).end()
+    console.error('No TWITCH_CLIENT_ID or twitchAccessToken cookie set')
     return;
   }
 

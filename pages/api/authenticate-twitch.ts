@@ -10,6 +10,7 @@ export default function handler(
 ) {
   if (!process.env.TWITCH_CLIENT_ID || !process.env.TWITCH_CLIENT_SECRET) {
     res.status(500).end()
+    console.error('No TWITCH_CLIENT_ID or TWITCH_CLIENT_SECRET set')
     return;
   }
   fetch(
