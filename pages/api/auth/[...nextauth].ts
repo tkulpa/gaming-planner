@@ -21,8 +21,8 @@ if (!!process?.env?.DISCORD_CLIENT_ID && !!process?.env?.DISCORD_CLIENT_SECRET) 
 export default NextAuth({
   providers,
   callbacks: {
-    async signIn({ user, account, profile, email, credentials }) {
-      console.log(`User ${email} logged in`)
+    async signIn({ user }) {
+      console.log(`User ${user?.name} (id: ${user?.id}) logged in`)
       return fetch(`${domain}/authenticate-twitch`, {
         method: "GET",
         headers: {
@@ -30,7 +30,7 @@ export default NextAuth({
         },
       })
         .then((response) => {
-          console.log(`User ${email} logged in and has TWITCH SESSION KEY`)
+          console.log(`User ${user?.name} (id: ${user?.id}) logged in and has TWITCH SESSION KEY`)
           return true
         })
         .catch((error) => {
