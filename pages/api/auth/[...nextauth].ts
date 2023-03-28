@@ -4,10 +4,11 @@ import DiscordProvider from 'next-auth/providers/discord'
 // https://discord.com/developers/docs/topics/oauth2#shared-resources-oauth2-scopes
 const scopes = ['identify', 'email', 'guilds.members.read'].join(' ')
 const providers = []
+const domain = process?.env?.VERCEL ? `https://gaming-planner.vercel.app` : 'http://localhost:3000'
 
 if (!!process?.env?.DISCORD_CLIENT_ID && !!process?.env?.DISCORD_CLIENT_SECRET) {
   const redirectUriPostfix = '/api/auth/callback/discord'
-  const redirectUri = process?.env?.VERCEL ? `https://gaming-planner.vercel.app` : 'http://localhost:3000'
+  const redirectUri = domain
   providers.push(DiscordProvider({
     clientId: process?.env?.DISCORD_CLIENT_ID,
     clientSecret: process?.env?.DISCORD_CLIENT_SECRET,
@@ -19,4 +20,23 @@ if (!!process?.env?.DISCORD_CLIENT_ID && !!process?.env?.DISCORD_CLIENT_SECRET) 
 
 export default NextAuth({
   providers,
+  callbacks: {
+    async signIn({ user, account, profile, email, credentials }) {
+      console.log(`User ${email} logged in`)
+      return fetch(`${domain}/authenticate-twitch`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => {
+          console.log(`User ${email} logged in and has TWITCH SESSION KEY`)
+          return true
+        })
+        .catch((error) => {
+          console.error("Error while Authenticating Twitch after login:", error);
+          return false
+        });
+    },
+  }
 })
