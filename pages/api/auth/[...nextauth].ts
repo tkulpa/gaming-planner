@@ -27,7 +27,6 @@ export default NextAuth({
         method: "GET"
       })
         .then((response) => {
-          console.log('response', response)
           console.log(`User ${user?.name} (id: ${user?.id}) has TWITCH SESSION KEY`)
           return true
         })

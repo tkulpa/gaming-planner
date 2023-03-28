@@ -24,7 +24,7 @@ export default function handler(
     .then((response) => response.json())
     .then((data) => {
       if(data?.access_token) {
-        setCookie('twitchAccessToken', data?.access_token, { req, res, maxAge: data?.expires_in });
+        setCookie('twitchAccessToken', data?.access_token, { req, res }); // maxAge: data?.expires_in
         console.log('twitchAccessToken set successfully!')
         res.status(200).end()
       } else {

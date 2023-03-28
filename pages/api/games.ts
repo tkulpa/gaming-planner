@@ -9,9 +9,16 @@ export default function handler(
   res: NextApiResponse
 ) {
   const twitchAccessToken = getCookie('twitchAccessToken', { req, res });
-  if (!process.env.TWITCH_CLIENT_ID || !twitchAccessToken) {
+  if (!process.env.TWITCH_CLIENT_ID) {
     res.status(500).end()
-    console.error('No TWITCH_CLIENT_ID or twitchAccessToken cookie set')
+    console.error('No TWITCH_CLIENT_ID set')
+    return;
+  }
+
+  if (!twitchAccessToken) {
+    res.status(500).end()
+    console.log('twitchAccessToken', twitchAccessToken)
+    console.error('No twitchAccessToken set')
     return;
   }
 
