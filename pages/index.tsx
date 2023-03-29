@@ -1,6 +1,5 @@
 import Head from 'next/head'
 import Image from 'next/image'
-import { Inter } from 'next/font/google'
 import { signIn, signOut, useSession } from 'next-auth/react'
 import { useCallback, useState } from 'react'
 import ReactTags, { Tag } from 'react-tag-autocomplete'
@@ -9,8 +8,6 @@ import { FaXbox, FaPlaystation, FaRegSave, FaDiscord } from 'react-icons/fa';
 import { BsNintendoSwitch } from 'react-icons/bs';
 import { GiComputerFan } from 'react-icons/gi';
 import { MdLogout } from 'react-icons/md';
-
-const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
   const { data: session } = useSession()
@@ -38,7 +35,7 @@ export default function Home() {
           if (data instanceof Array) {
             setSuggestions(data)
           }
-        })
+        }).finally(() => setIsBusy(false))
     }
   }
 
@@ -64,7 +61,7 @@ export default function Home() {
               style={{ borderRadius: '50%' }}
             />}
             <span style={{ marginLeft: 8, marginRight: 8 }}>{session?.user?.name}</span>
-            <MdLogout onClick={() => signOut()}/>
+            <MdLogout onClick={() => signOut()} />
           </p>}
         </div>
         {session ? <>
@@ -96,7 +93,7 @@ export default function Home() {
           :
           <div>
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
-              <button style={{ padding: 4, display: 'flex', alignItems: 'center' }} onClick={() => signIn('discord')}><FaDiscord/>&nbsp;Zaloguj się</button>
+              <button style={{ padding: 4, display: 'flex', alignItems: 'center' }} onClick={() => signIn('discord')}><FaDiscord />&nbsp;Zaloguj się</button>
             </div>
           </div>}
       </main>
