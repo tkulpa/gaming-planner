@@ -13,20 +13,20 @@ export interface Database {
         Row: {
           created_at: string
           discord_user_id: string
-          id: number
           igdb_game_id: number
+          name: string
         }
         Insert: {
           created_at?: string
           discord_user_id: string
-          id?: number
-          igdb_game_id: number
+          igdb_game_id?: number
+          name: string
         }
         Update: {
           created_at?: string
           discord_user_id?: string
-          id?: number
           igdb_game_id?: number
+          name?: string
         }
       }
       gaming_platforms: {

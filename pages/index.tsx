@@ -14,8 +14,8 @@ import { GetServerSideProps } from 'next';
 
 interface Game { 
   created_at: string;
+  name: string,
   discord_user_id: string;
-  id: number;
   igdb_game_id: number;
 }
 interface Props {
@@ -36,15 +36,18 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 
   return {
     props: {
-      games,
+      games: games ?? [],
       gamingPlatforms
     } as Props,
   }
 }
 
-export default function Home({ gamingPlatforms }: Props) {
+export default function Home({ gamingPlatforms, games }: Props) {
   const { data: session } = useSession()
-  const [games, setGames] = useState<Tag[]>([])
+  const [selectedGames, setSelectedGames] = useState<Tag[]>(games.map((game) => ({
+    id: game.igdb_game_id,
+    name: game.name,
+  })))
   const [isInputBusy, setIsInputBusy] = useState(false)
   const [suggestions, setSuggestions] = useState<Tag[]>([])
   const [selectedGamingPlatforms, setSelectedGamingPlatforms] = useState({
@@ -55,12 +58,12 @@ export default function Home({ gamingPlatforms }: Props) {
   })
 
   const onDelete = useCallback((gameIndex: number) => {
-    setGames(games.filter((_, i) => i !== gameIndex))
-  }, [games])
+    setSelectedGames(selectedGames.filter((_, i) => i !== gameIndex))
+  }, [selectedGames])
 
   const onAddition = useCallback((newGame: Tag) => {
-    setGames([...games, newGame])
-  }, [games])
+    setSelectedGames([...selectedGames, newGame])
+  }, [selectedGames])
 
   const onInput = (query: string) => {
     if (!isInputBusy && query.length >= 2) {
@@ -77,7 +80,7 @@ export default function Home({ gamingPlatforms }: Props) {
     }
   }
 
-  const debouncedOnInput = useCallback(debounce(onInput, 700), [games])
+  const debouncedOnInput = useCallback(debounce(onInput, 700), [selectedGames])
 
   const gamingPlatformButtonStyle = { padding: 4, display: 'flex', alignItems: 'center' }
   const selectedGamingPlatformButtonStyle = { backgroundColor: 'green', color: 'white' }
@@ -115,7 +118,7 @@ export default function Home({ gamingPlatforms }: Props) {
           </div>
           <span>
             <ReactTags
-              tags={games}
+              tags={selectedGames}
               maxSuggestionsLength={15}
               suggestions={suggestions}
               onDelete={onDelete}
@@ -137,7 +140,7 @@ export default function Home({ gamingPlatforms }: Props) {
                 },
                 body: JSON.stringify({
                   selectedGamingPlatforms,
-                  games
+                  selectedGames
                 })
               })
                 .then((response) => response.json())
