@@ -49,6 +49,7 @@ export default function Home({ gamingPlatforms, games }: Props) {
     name: game.name,
   })))
   const [isInputBusy, setIsInputBusy] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
   const [suggestions, setSuggestions] = useState<Tag[]>([])
   const [selectedGamingPlatforms, setSelectedGamingPlatforms] = useState({
     pc: gamingPlatforms?.pc ?? false,
@@ -131,7 +132,8 @@ export default function Home({ gamingPlatforms, games }: Props) {
             {isInputBusy && <p>Wczytywanie...</p>}
           </span>
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
-            <button style={{ padding: 4, display: 'flex', alignItems: 'center' }} onClick={() => {
+            <button disabled={isSaving} style={{ padding: 4, display: 'flex', alignItems: 'center' }} onClick={() => {
+              setIsSaving(true)
               return fetch(`/api/save`, {
                 method: "POST",
                 headers: {
@@ -149,6 +151,8 @@ export default function Home({ gamingPlatforms, games }: Props) {
                 })
                 .catch((error) => {
                   console.error("Error:", error);
+                }).finally(() => {
+                  setIsSaving(false)
                 });
 
             }}><FaRegSave />&nbsp;Zapisz</button>
