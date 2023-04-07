@@ -8,12 +8,51 @@ import { FaXbox, FaPlaystation, FaRegSave, FaDiscord } from 'react-icons/fa';
 import { BsNintendoSwitch } from 'react-icons/bs';
 import { GiComputerFan } from 'react-icons/gi';
 import { MdLogout } from 'react-icons/md';
+import { supabase } from '@/lib/supabaseClient';
+import { getToken } from 'next-auth/jwt';
+import { GetServerSideProps } from 'next';
 
-export default function Home() {
+interface Game { 
+  created_at: string;
+  discord_user_id: string;
+  id: number;
+  igdb_game_id: number;
+}
+interface Props {
+  games: Game[],
+  gamingPlatforms: {
+    pc: boolean | null
+    playstation: boolean | null
+    switch: boolean | null
+    xbox: boolean | null
+  }
+}
+
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  const token = await getToken({ req })
+  let { data: games } = await supabase.from('games').select()
+  let { data: gamingPlatforms } = await supabase.from('gaming_platforms').select().eq('discord_user_id', token?.sub).limit(1)
+    .single()
+
+  return {
+    props: {
+      games,
+      gamingPlatforms
+    } as Props,
+  }
+}
+
+export default function Home({ gamingPlatforms }: Props) {
   const { data: session } = useSession()
   const [games, setGames] = useState<Tag[]>([])
-  const [isBusy, setIsBusy] = useState(false)
+  const [isInputBusy, setIsInputBusy] = useState(false)
   const [suggestions, setSuggestions] = useState<Tag[]>([])
+  const [selectedGamingPlatforms, setSelectedGamingPlatforms] = useState({
+    pc: gamingPlatforms?.pc ?? false,
+    xbox: gamingPlatforms?.xbox ?? false,
+    playstation: gamingPlatforms?.playstation ?? false,
+    switch: gamingPlatforms?.switch ?? false,
+  })
 
   const onDelete = useCallback((gameIndex: number) => {
     setGames(games.filter((_, i) => i !== gameIndex))
@@ -24,22 +63,24 @@ export default function Home() {
   }, [games])
 
   const onInput = (query: string) => {
-    if (!isBusy && query.length >= 2) {
-      setIsBusy(true)
+    if (!isInputBusy && query.length >= 2) {
+      setIsInputBusy(true)
 
       return fetch(`/api/games?searchTerm=${query}`)
         .then((response) => response.json())
         .then((data: Tag[]) => {
-          setIsBusy(false)
-          console.log('data', data)
+          setIsInputBusy(false)
           if (data instanceof Array) {
             setSuggestions(data)
           }
-        }).finally(() => setIsBusy(false))
+        }).finally(() => setIsInputBusy(false))
     }
   }
 
   const debouncedOnInput = useCallback(debounce(onInput, 700), [games])
+
+  const gamingPlatformButtonStyle = { padding: 4, display: 'flex', alignItems: 'center' }
+  const selectedGamingPlatformButtonStyle = { backgroundColor: 'green', color: 'white' }
 
   return (
     <>
@@ -67,10 +108,10 @@ export default function Home() {
         {session ? <>
           <div style={{ display: 'inline-flex', flexWrap: 'wrap', alignItems: 'center', flexDirection: 'row', gap: 12, marginBottom: 8 }}>
             Wybierz platformy:
-            <button style={{ padding: 4, display: 'flex', alignItems: 'center' }}><GiComputerFan />&nbsp;PC</button>
-            <button style={{ padding: 4, display: 'flex', alignItems: 'center' }}><FaXbox />&nbsp;Xbox</button>
-            <button style={{ padding: 4, display: 'flex', alignItems: 'center' }}><FaPlaystation />&nbsp;PS</button>
-            <button style={{ padding: 4, display: 'flex', alignItems: 'center' }}><BsNintendoSwitch />&nbsp;Switch</button>
+            <button style={{ ...gamingPlatformButtonStyle, ...(selectedGamingPlatforms.pc ? selectedGamingPlatformButtonStyle : {}) }} onClick={() => setSelectedGamingPlatforms(prevState => ({ ...prevState, pc: !prevState.pc }))}><GiComputerFan />&nbsp;PC</button>
+            <button style={{ ...gamingPlatformButtonStyle, ...(selectedGamingPlatforms.xbox ? selectedGamingPlatformButtonStyle : {}) }} onClick={() => setSelectedGamingPlatforms(prevState => ({ ...prevState, xbox: !prevState.xbox }))}><FaXbox />&nbsp;Xbox</button>
+            <button style={{ ...gamingPlatformButtonStyle, ...(selectedGamingPlatforms.playstation ? selectedGamingPlatformButtonStyle : {}) }} onClick={() => setSelectedGamingPlatforms(prevState => ({ ...prevState, playstation: !prevState.playstation }))}><FaPlaystation />&nbsp;PS</button>
+            <button style={{ ...gamingPlatformButtonStyle, ...(selectedGamingPlatforms.switch ? selectedGamingPlatformButtonStyle : {}) }} onClick={() => setSelectedGamingPlatforms(prevState => ({ ...prevState, switch: !prevState.switch }))}><BsNintendoSwitch />&nbsp;Switch</button>
           </div>
           <span>
             <ReactTags
@@ -84,10 +125,30 @@ export default function Home() {
               onInput={debouncedOnInput}
               placeholderText="Wpisz nazwę gry, która cię interesuje"
             />
-            {isBusy && <p>Wczytywanie...</p>}
+            {isInputBusy && <p>Wczytywanie...</p>}
           </span>
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
-            <button style={{ padding: 4, display: 'flex', alignItems: 'center' }}><FaRegSave />&nbsp;Zapisz</button>
+            <button style={{ padding: 4, display: 'flex', alignItems: 'center' }} onClick={() => {
+              return fetch(`/api/save`, {
+                method: "POST",
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  selectedGamingPlatforms,
+                  games
+                })
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  console.log('data', data)
+                })
+                .catch((error) => {
+                  console.error("Error:", error);
+                });
+
+            }}><FaRegSave />&nbsp;Zapisz</button>
           </div>
         </>
           :
