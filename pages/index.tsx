@@ -14,7 +14,7 @@ interface Props {
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const token = await getToken({ req })
-  let { data: games } = await supabase.from('games').select()
+  let { data: games } = await supabase.from('games').select().eq('discord_user_id', token?.sub)
   let { data: gamingPlatforms } = await supabase.from('gaming_platforms').select().eq('discord_user_id', token?.sub).limit(1)
     .single()
 
