@@ -7,14 +7,18 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "update-types": "npx supabase gen types typescript --project-id \"jykwonbgnyscqbdvgfgs\" > types/supabase.ts"
+    "update-types": "npx supabase gen types typescript --project-id \"jykwonbgnyscqbdvgfgs\" > types/supabase.ts",
+    "start-bot": "node ./discordBot/index.js"
   },
   "dependencies": {
+    "@discordjs/core": "^0.5.2",
     "@supabase/supabase-js": "^2.12.1",
     "@types/node": "18.15.5",
     "@types/react": "18.0.28",
     "@types/react-dom": "18.0.11",
     "cookies-next": "^2.1.1",
+    "discord.js": "^14.9.0",
+    "dotenv": "^16.0.3",
     "eslint": "8.36.0",
     "eslint-config-next": "13.2.4",
     "lodash": "^4.17.21",
@@ -29,6 +33,7 @@
   "devDependencies": {
     "@types/lodash": "^4.14.191",
     "@types/react-tag-autocomplete": "^6.3.0",
-    "supabase": "^1.46.5"
+    "supabase": "^1.46.5",
+    "ts-node": "^10.9.1"
   }
 }
