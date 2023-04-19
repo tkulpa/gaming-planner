@@ -14,9 +14,9 @@ export interface Game {
 
 export interface GamingPlatforms {
   pc: boolean | null
+  xbox: boolean | null
   playstation: boolean | null
   switch: boolean | null
-  xbox: boolean | null
 }
 
 export interface PlannerProps {

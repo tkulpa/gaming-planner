@@ -1,17 +1,19 @@
 import { supabase } from '@/lib/supabaseClient'
+import updateMetadata from '@/lib/updateMetadata'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getToken } from 'next-auth/jwt'
+import { useSession } from 'next-auth/react'
 
 interface Game {
   id: number
   name: string
 }
 
-interface GamingPlatforms {
+export interface GamingPlatforms {
   pc: boolean
+  xbox: boolean
   playstation: boolean
   switch: boolean
-  xbox: boolean
 }
 
 interface Body {
@@ -24,6 +26,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const token = await getToken({ req })
+
   const { selectedGames, selectedGamingPlatforms } = req.body as Body
   if (token?.sub && selectedGamingPlatforms) {
     const { error } = await supabase.from('gaming_platforms')
@@ -37,6 +40,8 @@ export default async function handler(
       .select()
     if (error) {
       console.error('Error gaming_platforms upsert:', error)
+    } else {
+      updateMetadata(token?.accessToken as string, selectedGamingPlatforms)
     }
   }
 
